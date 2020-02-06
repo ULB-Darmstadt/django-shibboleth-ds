@@ -1,0 +1,9 @@
+# Python related files
+.coverage
+django_shibboleth_ds.egg-info
+.eggs
+*.pyc
+.tox
+
+# Editor specific files
+*.swp
