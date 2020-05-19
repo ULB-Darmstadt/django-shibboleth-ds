@@ -28,7 +28,7 @@ class TestSearchView:
     def test_search(self, tokens, expected, client):
         url = reverse('shib_ds:search') + "?{}=".format(settings.SHIB_DS_QUERY_PARAMETER) + " ".join(tokens)
         r = client.get(url)
-        results = [result.get('entity_id') for result in json.loads(r.content).get('results')]
+        results = [result.get('entity_id') for result in json.loads(r.content.decode('utf-8')).get('results')]
         assert results == expected
 
     @pytest.mark.parametrize('language, expected', [('en', 'Bochum University Of Applied Sciences'), ('de', 'Hochschule Bochum')])
@@ -36,36 +36,36 @@ class TestSearchView:
         client.cookies.load({settings.LANGUAGE_COOKIE_NAME : language})
         url = reverse('shib_ds:search') + "?q=Bochum"
         r = client.get(url)
-        assert json.loads(r.content).get('results')[0].get('name') == expected
-        assert json.loads(r.content).get('results')[0].get('description') == expected
+        assert json.loads(r.content.decode('utf-8')).get('results')[0].get('name') == expected
+        assert json.loads(r.content.decode('utf-8')).get('results')[0].get('description') == expected
 
     @pytest.mark.parametrize('token, expected', [('Kassel', None), ('Bochum', 'https://idp.hs-bochum.de/aai/bo-logo.jpg')])
     def test_search_logo(self,token, expected, client):
         url = reverse('shib_ds:search') + "?q=" + token
         r = client.get(url)
-        assert json.loads(r.content).get('results')[0].get('logo') == expected
+        assert json.loads(r.content.decode('utf-8')).get('results')[0].get('logo') == expected
 
     def test_search_query_parameter(self, settings, client):
         param = 'spam'
         settings.SHIB_DS_QUERY_PARAMETER = param
         url = reverse('shib_ds:search') + "?{}=Kassel".format(param)
         r = client.get(url)
-        assert json.loads(r.content).get('results') != []
+        assert json.loads(r.content.decode('utf-8')).get('results') != []
 
 
     def test_search_max_results(self, settings, client):
         settings.SHIB_DS_MAX_RESULTS = 1
         url = reverse('shib_ds:search') + "?q=a"
         r = client.get(url)
-        assert len(json.loads(r.content).get('results')) == 1
+        assert len(json.loads(r.content.decode('utf-8')).get('results')) == 1
 
 
     def test_select2_post_processor(self, client, settings):
         settings.SHIB_DS_POST_PROCESSOR = select2_processor
         url = reverse('shib_ds:search') + "?q=Bochum"
         r = client.get(url)
-        assert json.loads(r.content).get('results')[0].get('id') == 'https://idp.hs-bochum.de/idp/shibboleth'
-        assert json.loads(r.content).get('results')[0].get('text') == 'Bochum University Of Applied Sciences'
+        assert json.loads(r.content.decode('utf-8')).get('results')[0].get('id') == 'https://idp.hs-bochum.de/idp/shibboleth'
+        assert json.loads(r.content.decode('utf-8')).get('results')[0].get('text') == 'Bochum University Of Applied Sciences'
 
 
 class TestSetCookieView:

@@ -57,7 +57,7 @@ class SetCookieView(View):
         Sets a cookie with POST content
         """
         try:
-            entity_id = json.loads(request.body).get('entity_id', '')
+            entity_id = json.loads(request.body.decode('utf-8')).get('entity_id', '')
         except json.JSONDecodeError:
             return HttpResponseBadRequest("Invalid JSON.")
 
