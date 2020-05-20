@@ -1,3 +1,12 @@
+.. image:: https://travis-ci.com/ULB-Darmstadt/django-shibboleth-ds.svg?branch=master
+    :target: https://travis-ci.com/ULB-Darmstadt/django-shibboleth-ds
+    :alt: Build status
+  
+.. image:: https://coveralls.io/repos/github/ULB-Darmstadt/django-shibboleth-ds/badge.svg?branch=master
+    :target: https://coveralls.io/github/ULB-Darmstadt/django-shibboleth-ds?branch=master
+    :alt: Coverage
+
+
 Django Shibboleth Discovery
 ===========================
 
