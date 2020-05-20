@@ -66,7 +66,7 @@ You get the following back:
            {
                "entity_id" : "https://idp.hrz.uni-kassel.de/idp/shibboleth-idp",
                "name" : "Universität Kassel",
-               "description" : Universität Kassel - Shibboleth Identity Provider",
+               "description" : "Universität Kassel - Shibboleth Identity Provider",
                "logo" : null
             }
        ]
