@@ -30,7 +30,7 @@ Installation
 
    .. code:: bash
 
-       pip install django-shibboleth-ds
+       pip install git+https://github.com/ULB-Darmstadt/django-shibboleth-ds.git
 
 2. Add ``shibboleth_discovery`` to your ``INSTALLED_APPS`` in your project settings.
 
@@ -95,8 +95,8 @@ Options
 
 SHIB_DS_CACHE_DURATION (Default: 60*60)
     Internally, Django Shibboleth Discovery uses a cache to store the DiscoFeed.
-    That way, not for each AJAX request to DiscoFeed is reloaded, which is quite expensive.
-    The feed ist stored in a prepared (smaller) version, once it is accessed.
+    That way, not for each AJAX request to DiscoFeed is reloaded, which can be quite expensive even if the shibboleth deamon does cache it.
+    The feed is stored in a prepared (smaller) version once it was accessed.
 
     To manually renew the cache, call
 
@@ -108,7 +108,7 @@ SHIB_DS_DEFAULT_RETURN (Default: '')
     Usually this is ``https://<your-domain>/Shibboleth.sso/Login?target=https://<your-domain>/``.
     You will need this, if your discovery service is directly approached, i.e. if you do not entirely rely on forwarding from your service provider.
 
-    If you set this value, make sure to add it so ``SHIB_DS_VALID_RETURN_PATTERN``.
+    If you set this value, make sure to add it to ``SHIB_DS_VALID_RETURN_PATTERN``.
 
 SHIB_DS_DISCOFEED_PATH
     If your SP is configured, to output the DiscoFeed in a file, you can set the path here.
@@ -132,7 +132,7 @@ SHIB_DS_POLICIES (Default: ['urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-p
     Usually the default is sufficient.
 
 SHIB_DS_POST_PROCESSOR (Default: lambda x: x)
-    Pass a function, that changes a list of IdP-dictionaries.
+    Pass a function that changes a list of IdP-dictionaries.
     The processor is always used, whenever you retrieve IdPs.
 
     As a helper function, there is a processor for Select2.
@@ -141,6 +141,8 @@ SHIB_DS_POST_PROCESSOR (Default: lambda x: x)
 
         from shibboleth_discovery.helpers import select2_processor
         SHIB_DS_POST_PROCESSOR = select2_processor
+
+    Of course, if you use Select2's ``templateResult`` this processor is reduntant.
 
 SHIB_DS_QUERY_PARAMETER (Default: 'q')
     In case you need a different GET parameter for your query, you can set it here. Note that the default value works fine with Select2.
@@ -160,11 +162,11 @@ SHIB_DS_VALID_RETURN_PATTERN (Default: [])
 Mixins
 ~~~~~~
 
-Django Shibboleth Discovery is quipped with a login mixin, that can be used with any view that supports ``get_context_data``.
+Django Shibboleth Discovery is equipped with a login mixin, that can be used with any view that supports ``get_context_data``.
 
 .. code:: python
 
-    from shibboleth_discovery.views import ShibDSLoginMixin
+    from shibboleth_discovery.mixins import ShibDSLoginMixin
     from django.views.generic import TemplateView
 
     class LoginView(ShibDSLoginMixin, TemplateView):
@@ -207,8 +209,8 @@ return_id_param
 
 
 The mixin itself does not throw any errors.
-This has the benefit, that you can use it as a mixin without sorrows and use your own translation.
-The easiest way to deal with errors is in the template.
+This has the benefit that you can use it as a mixin without sorrows and use your own translations.
+The easiest way to deal with errors is in the template:
 
 .. code:: html
 
