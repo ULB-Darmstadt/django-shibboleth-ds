@@ -16,7 +16,7 @@ So you can use your favourite autocompletition tool or, in case you have just a 
 
 In contrast to Shibboleth Embedded Discovery you can really fully customize your UI and use a mobile first approach.
 The downside of course is, that you have to work on your UI and implement the redirect.
-But there's of course a mixin to support you!
+But there are of course a mixin and a templatetag to support you!
 
 Django Shibboleth Discovery uses simple AJAX requests for the search.
 Under the hood, the DiscoFeed, that can be quite big, is cached using Djangos caching framework.
@@ -221,3 +221,17 @@ The easiest way to deal with errors is in the template:
    {% endif %}
 
 In case you want to respond differently, e.g. with another template or HTTP status code, you can overwrite ``render_to_response``.
+
+Templatetag
+~~~~~~~~~~~
+
+In case you do not want to use a mixin, e.g. if shibboleth authentication is optional in your app, you can also use a templatetag.
+
+.. code:: html
+
+   <!-- Load the templatetags -->
+   {% load shibboleth_discovery %}
+
+   {% shib_ds_context as shib_ds %}
+
+Then you have a dict as provided by the mixin.
