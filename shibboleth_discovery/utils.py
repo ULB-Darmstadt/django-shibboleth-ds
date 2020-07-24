@@ -144,6 +144,26 @@ def search(tokens):
     return result
 
 
+def get_recent_idps(request):
+    """
+    Returns a list of recent IdPs formatted by SHIB_DS_POST_PROCESSOR
+    """
+    saved_idps = [b64decode_idp(idp) for idp in request.COOKIES.get(COOKIE_NAME, '').split(' ') if idp]
+    idps, index = cache.get_or_set(
+        'shib_ds',
+        prepare_data(),
+        timeout=settings.SHIB_DS_CACHE_DURATION
+    )
+    recent_idps = settings.SHIB_DS_POST_PROCESSOR(
+        [
+            localize_idp(idp) for idp in idps
+            if any(saved_idp == idp.get('entity_id') for saved_idp in saved_idps)
+        ]
+    )
+    return recent_idps
+
+
+
 def get_context(request):
     """
     Takes a request and produces a dictionary containing various information, mainly a ServiceProvider login handler and IdPs from cookies
@@ -178,18 +198,7 @@ def get_context(request):
     shib_ds['return_id_param'] = request.GET.get('returnIDParam') or settings.SHIB_DS_RETURN_ID_PARAM
 
     # Recently used IdPs
-    saved_idps = [b64decode_idp(idp) for idp in request.COOKIES.get(COOKIE_NAME, '').split(' ') if idp]
-    idps, index = cache.get_or_set(
-        'shib_ds',
-        prepare_data(),
-        timeout=settings.SHIB_DS_CACHE_DURATION
-    )
-    shib_ds['recent_idps'] = settings.SHIB_DS_POST_PROCESSOR(
-        [
-            localize_idp(idp) for idp in idps
-            if any(saved_idp in idp.get('entity_id') for saved_idp in saved_idps)
-        ]
-    )
+    shib_ds['recent_idps'] = get_recent_idps(request)
 
     # Check if isPassive was passed
     if request.GET.get('isPassive', '') == 'true':
