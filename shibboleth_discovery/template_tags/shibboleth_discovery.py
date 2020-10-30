@@ -11,4 +11,6 @@ def shib_ds_context(context):
         * ServiceProvider login handler
         * IdPs from cookie
     """
-    return get_context(context.request)
+    shib_ds = get_context(context.request)
+
+    return shib_ds

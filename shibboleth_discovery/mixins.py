@@ -1,4 +1,4 @@
-from .utils import get_context
+from shibboleth_discovery.utils import get_context
 
 class ShibDSLoginMixin:
     """
@@ -12,8 +12,6 @@ class ShibDSLoginMixin:
             * IdPs from cookie
         """
         context = super().get_context_data(**kwargs)
+        context['shib_ds'] = get_context(self.request)
 
-        shib_ds = get_context(self.request)
-
-        context['shib_ds'] = shib_ds
         return context

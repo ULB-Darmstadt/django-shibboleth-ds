@@ -4,7 +4,6 @@ import pytest
 from django.conf import settings
 from django.urls import reverse
 
-from shibboleth_discovery.conf import COOKIE_NAME
 from shibboleth_discovery.helpers import select2_processor
 from shibboleth_discovery.utils import b64encode_idp
 
@@ -72,7 +71,7 @@ class TestSetCookieView:
 
     def test_set_cookie(self, client):
         # We do not have a cookie set
-        assert client.cookies.get(COOKIE_NAME) is None
+        assert client.cookies.get(settings.SHIB_DS_COOKIE_NAME) is None
 
         idp_da = 'https://idp.hrz.tu-darmstadt.de/idp/shibboleth'
         idp_ks = 'https://idp.hrz.uni-kassel.de/idp/shibboleth-idp'
@@ -80,17 +79,17 @@ class TestSetCookieView:
         # First we set a cookie
         r = client.post(reverse('shib_ds:remember-idp'), {'entity_id': idp_da}, 'application/json')
         assert r.status_code == 200
-        assert client.cookies.get(COOKIE_NAME).value == b64encode_idp(idp_da)
+        assert client.cookies.get(settings.SHIB_DS_COOKIE_NAME).value == b64encode_idp(idp_da)
 
         # If we set the cookie again, nothing changes
         r = client.post(reverse('shib_ds:remember-idp'), {'entity_id': idp_da}, 'application/json')
         assert r.status_code == 200
-        assert client.cookies.get(COOKIE_NAME).value == b64encode_idp(idp_da)
+        assert client.cookies.get(settings.SHIB_DS_COOKIE_NAME).value == b64encode_idp(idp_da)
 
         # We set another idp cookie, this must be first
         r = client.post(reverse('shib_ds:remember-idp'), {'entity_id': idp_ks}, 'application/json')
         assert r.status_code == 200
-        assert client.cookies.get(COOKIE_NAME).value == ' '.join([b64encode_idp(idp_ks), b64encode_idp(idp_da)])
+        assert client.cookies.get(settings.SHIB_DS_COOKIE_NAME).value == ' '.join([b64encode_idp(idp_ks), b64encode_idp(idp_da)])
 
     def test_max_idps(self, client, settings):
         settings.SHIB_DS_MAX_IDP = 1
@@ -98,7 +97,7 @@ class TestSetCookieView:
         idp_ks = 'https://idp.hrz.uni-kassel.de/idp/shibboleth-idp'
         client.post(reverse('shib_ds:remember-idp'), {'entity_id': idp_da}, 'application/json')
         client.post(reverse('shib_ds:remember-idp'), {'entity_id': idp_ks}, 'application/json')
-        assert client.cookies.get(COOKIE_NAME).value == b64encode_idp(idp_ks)
+        assert client.cookies.get(settings.SHIB_DS_COOKIE_NAME).value == b64encode_idp(idp_ks)
 
     def test_invalid_json(self, client):
         r = client.post(reverse('shib_ds:remember-idp'), 'This is not JSON', 'text/plain')

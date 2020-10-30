@@ -1,14 +1,11 @@
 import json
-import re
 import requests
 
 from base64 import b64decode, b64encode
 
+from django.conf import settings
 from django.core.cache import cache
 from django.utils import translation
-
-from .conf import COOKIE_NAME
-from .conf import settings
 
 def b64decode_idp(idp):
     """
@@ -148,7 +145,7 @@ def get_recent_idps(request):
     """
     Returns a list of recent IdPs formatted by SHIB_DS_POST_PROCESSOR
     """
-    saved_idps = [b64decode_idp(idp) for idp in request.COOKIES.get(COOKIE_NAME, '').split(' ') if idp]
+    saved_idps = [b64decode_idp(idp) for idp in request.COOKIES.get(settings.SHIB_DS_COOKIE_NAME, '').split(' ') if idp]
     idps, index = cache.get_or_set(
         'shib_ds',
         prepare_data(),
@@ -162,48 +159,13 @@ def get_recent_idps(request):
     )
     return recent_idps
 
-
-
 def get_context(request):
     """
-    Takes a request and produces a dictionary containing various information, mainly a ServiceProvider login handler and IdPs from cookies
+    Takes a request and returns a dictionary containing some information for context
     """
-    shib_ds = dict()
-
-    # First we check if the entityID from settings and GET match if the first one is set
-    if settings.SHIB_DS_ENTITY_ID and settings.SHIB_DS_ENTITY_ID != request.GET.get('entity_id'):
-        shib_ds['error'] = 'entity_id'
-    # If settings.SHIB_DS_ENTITY_ID is not set set or settings.SHIB_DS_ENTITY_ID is set and the values are identical, set entity_id
-    else:
-        shib_ds['entity_id'] = request.GET.get('entity_id') or settings.SHIB_DS_ENTITY_ID
-
-    # Next we look for the policy. It must be one of settings.SHIB_DS_POLICIES or None
-    # If no policy is given, the default must be used
-    policy = request.GET.get('policy') or 'urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single'
-    if policy in settings.SHIB_DS_POLICIES:
-        shib_ds['policy'] = policy
-    else:
-        shib_ds['error'] = 'policy'
-
-    # The return value is where to send the user client after choosing an IdP
-    # Must satisfy any of some regexp, so that forwarding is to the desired SP
-    # If no return value is set, settings.DEFAULT_RETURN is used
-    return_val = request.GET.get('return') or settings.SHIB_DS_DEFAULT_RETURN
-    if return_val and len(settings.SHIB_DS_VALID_RETURN_PATTERN) == 0 or any(re.match(reg, return_val) for reg in settings.SHIB_DS_VALID_RETURN_PATTERN):
-        shib_ds['return'] = return_val
-    else:
-        shib_ds['error'] = 'return'
-
-    # If we get a returnIDParam passed use it, otherwise settings.SHIB_DS_RETURN_ID_PARAM
-    shib_ds['return_id_param'] = request.GET.get('returnIDParam') or settings.SHIB_DS_RETURN_ID_PARAM
-
-    # Recently used IdPs
-    shib_ds['recent_idps'] = get_recent_idps(request)
-
-    # Check if isPassive was passed
-    if request.GET.get('isPassive', '') == 'true':
-        shib_ds['is_passive'] = True
-    else:
-        shib_ds['is_passive'] = False
-
+    shib_ds = {
+        'recent_idps' : get_recent_idps(request),
+        'return_id_param' : settings.SHIB_DS_RETURN_ID_PARAM,
+        'target_sp_url' : settings.SHIB_DS_TARGET_SP_URL,
+    }
     return shib_ds

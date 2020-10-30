@@ -7,21 +7,22 @@ from django.core.exceptions import ImproperlyConfigured
 class ShibbolethDiscoveryConf(AppConf):
 
     CACHE_DURATION = 60*60*2 # 2 hours
-    DEFAULT_RETURN = ''
+    COOKIE_NAME = '_saml_idp'
     DISCOFEED_PATH = None
     DISCOFEED_URL = None
-    ENTITY_ID = None
     MAX_RESULTS = 10
     MAX_IDP = 3
-    POLICIES = ['urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single', ]
     POST_PROCESSOR = lambda x: x
     QUERY_PARAMETER = 'q'
     RETURN_ID_PARAM = 'entityID'
-    VALID_RETURN_PATTERN = []
-
+    TARGET_SP_URL = ''
 
     class Meta:
         prefix = 'shib_ds'
+
+# SHIB_DS_TARGET_SP_URL must be set
+if not settings.SHIB_DS_TARGET_SP_URL:
+    raise ImproperlyConfigured("TARGET SP URL for redirect to IdP missing")
 
 # Either SHIB_DS_DISCOFEED_URL or SHIB_DS_DISCOFEED_PATH must be set
 if not settings.SHIB_DS_DISCOFEED_URL and not settings.SHIB_DS_DISCOFEED_PATH:
@@ -32,4 +33,3 @@ if not settings.SHIB_DS_RETURN_ID_PARAM:
     raise ImproperlyConfigured("No returnIDParam set. Please set SHIB_DS_RETURN_ID_PARAM")
 
 
-COOKIE_NAME = '_saml_idp'

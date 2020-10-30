@@ -3,14 +3,13 @@ import json
 from datetime import datetime
 from datetime import timedelta
 
+from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.views.generic.base import View
 
-from .conf import COOKIE_NAME
-from .conf import settings
 from .utils import b64decode_idp, b64encode_idp
 from .utils import prepare_data
 from .utils import search
@@ -71,7 +70,7 @@ class SetCookieView(View):
         )
         # We allow only known entityIDs to be saved
         if entity_id in [idp.get('entity_id') for idp in idps]:
-            idps = [b64decode_idp(idp) for idp in request.COOKIES.get(COOKIE_NAME, '').split(' ') if idp]
+            idps = [b64decode_idp(idp) for idp in request.COOKIES.get(settings.SHIB_DS_COOKIE_NAME, '').split(' ') if idp]
             # We delete the entity_id / IdP from the list and then append the list to our new entity id.
             # This way, the new entity id is the first
             try:
@@ -84,7 +83,7 @@ class SetCookieView(View):
             response = HttpResponse()
 
             response.set_cookie(
-                COOKIE_NAME,
+                settings.SHIB_DS_COOKIE_NAME,
                 value=' '.join(idps[:settings.SHIB_DS_MAX_IDP]),
                 expires=datetime.now() + timedelta(days=365),
             )
