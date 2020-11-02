@@ -175,6 +175,10 @@ recent_idps
 return_id_param
     Paramter with which you pass the choosen IdP to the SP.
 
+return_url
+    Return URL to pass to the Shibboleth Service Provider Deamon.
+    This value is your domain together with the value of ``?next=`` and always uses https.
+
 target_sp_url
     URL to the Shibboleth SP Deamon.
 

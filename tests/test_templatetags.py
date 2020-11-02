@@ -43,3 +43,7 @@ class TestShibDS:
     def test_target_sp_url(self):
         shib_ds = self.get_shib_ds()
         assert shib_ds.get('target_sp_url') == settings.SHIB_DS_TARGET_SP_URL
+
+    def test_return_url(self, client):
+        shib_ds = self.get_shib_ds('?next=spam')
+        assert shib_ds.get('return_url') == 'https://testserver/spam'

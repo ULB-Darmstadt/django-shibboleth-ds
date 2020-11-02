@@ -2,8 +2,10 @@ import json
 import requests
 
 from base64 import b64decode, b64encode
+from urllib.parse import urljoin
 
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import cache
 from django.utils import translation
 
@@ -163,9 +165,12 @@ def get_context(request):
     """
     Takes a request and returns a dictionary containing some information for context
     """
+    return_url = urljoin('https://{}'.format(get_current_site(request)), request.GET.get('next', ''))
+
     shib_ds = {
         'recent_idps' : get_recent_idps(request),
         'return_id_param' : settings.SHIB_DS_RETURN_ID_PARAM,
+        'return_url' : return_url,
         'target_sp_url' : settings.SHIB_DS_TARGET_SP_URL,
     }
     return shib_ds
