@@ -139,7 +139,7 @@ SHIB_DS_POST_PROCESSOR (Default: lambda x: x)
 SHIB_DS_QUERY_PARAMETER (Default: 'q')
     In case you need a different GET parameter for your query, you can set it here. Note that the default value works fine with Select2.
 
-SHIB_DS_TARGET_SP_URL (*required*)
+SHIB_DS_SP_URL (*required*)
     Usually this is ``https://<your-domain>/Shibboleth.sso/Login?target=https://<your-domain>/``.
     Essentially it is the URL of your Shibboleth Service Provider Deamon that will finally redirect to the chosen Identity Provider.
 
@@ -179,7 +179,7 @@ return_url
     Return URL to pass to the Shibboleth Service Provider Deamon.
     This value is your domain together with the value of ``?next=`` and always uses https.
 
-target_sp_url
+sp_url
     URL to the Shibboleth SP Deamon.
 
 

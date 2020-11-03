@@ -23,9 +23,9 @@ class TestShibDSLoginMixin:
         shib_ds = client.get(self.login_url).context.get('shib_ds')
         assert shib_ds.get('return_id_param') == settings.SHIB_DS_RETURN_ID_PARAM
 
-    def test_target_sp_url(self, client):
+    def test_sp_url(self, client):
         shib_ds = client.get(self.login_url).context.get('shib_ds')
-        assert shib_ds.get('target_sp_url') == settings.SHIB_DS_TARGET_SP_URL
+        assert shib_ds.get('sp_url') == settings.SHIB_DS_SP_URL
 
     def test_return_url(self, client):
         shib_ds = client.get(self.login_url + '?next=spam').context.get('shib_ds')

@@ -15,14 +15,14 @@ class ShibbolethDiscoveryConf(AppConf):
     POST_PROCESSOR = lambda x: x
     QUERY_PARAMETER = 'q'
     RETURN_ID_PARAM = 'entityID'
-    TARGET_SP_URL = ''
+    SP_URL = ''
 
     class Meta:
         prefix = 'shib_ds'
 
 # SHIB_DS_TARGET_SP_URL must be set
-if not settings.SHIB_DS_TARGET_SP_URL:
-    raise ImproperlyConfigured("TARGET SP URL for redirect to IdP missing")
+if not settings.SHIB_DS_SP_URL:
+    raise ImproperlyConfigured("SP URL for redirect to IdP missing")
 
 # Either SHIB_DS_DISCOFEED_URL or SHIB_DS_DISCOFEED_PATH must be set
 if not settings.SHIB_DS_DISCOFEED_URL and not settings.SHIB_DS_DISCOFEED_PATH:

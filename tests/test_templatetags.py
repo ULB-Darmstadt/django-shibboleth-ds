@@ -40,9 +40,9 @@ class TestShibDS:
         shib_ds = self.get_shib_ds()
         assert shib_ds.get('return_id_param') == settings.SHIB_DS_RETURN_ID_PARAM
 
-    def test_target_sp_url(self):
+    def test_sp_url(self):
         shib_ds = self.get_shib_ds()
-        assert shib_ds.get('target_sp_url') == settings.SHIB_DS_TARGET_SP_URL
+        assert shib_ds.get('sp_url') == settings.SHIB_DS_SP_URL
 
     def test_return_url(self, client):
         shib_ds = self.get_shib_ds('?next=spam')

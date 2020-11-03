@@ -119,4 +119,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 SHIB_DS_DISCOFEED_PATH = os.path.join(BASE_DIR, '..', 'fixtures', 'DiscoFeed.json')
-SHIB_DS_TARGET_SP_URL = 'https://test-idp.ulb.tu-darmstadt.de/SSO/Login'
+SHIB_DS_SP_URL = 'https://test-idp.ulb.tu-darmstadt.de/SSO/Login'

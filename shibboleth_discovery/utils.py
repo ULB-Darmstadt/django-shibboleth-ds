@@ -171,6 +171,6 @@ def get_context(request):
         'recent_idps' : get_recent_idps(request),
         'return_id_param' : settings.SHIB_DS_RETURN_ID_PARAM,
         'return_url' : return_url,
-        'target_sp_url' : settings.SHIB_DS_TARGET_SP_URL,
+        'sp_url' : settings.SHIB_DS_SP_URL,
     }
     return shib_ds
