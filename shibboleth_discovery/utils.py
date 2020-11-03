@@ -165,12 +165,10 @@ def get_context(request):
     """
     Takes a request and returns a dictionary containing some information for context
     """
-    return_url = urljoin('https://{}'.format(get_current_site(request)), request.GET.get('next', ''))
-
     shib_ds = {
         'recent_idps' : get_recent_idps(request),
         'return_id_param' : settings.SHIB_DS_RETURN_ID_PARAM,
-        'return_url' : return_url,
         'sp_url' : settings.SHIB_DS_SP_URL,
+        'target' : urljoin('https://{}'.format(get_current_site(request)), request.GET.get('next', '')),
     }
     return shib_ds
