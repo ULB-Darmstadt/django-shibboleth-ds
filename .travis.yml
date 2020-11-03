@@ -29,9 +29,6 @@ jobs:
     - python: 3.6
       env: TOXENV=py36-dj22
 
-    - python: 3.5
-      env: TOXENV=py36-dj22
-
     - stage: packaging
       python: 3.8
       env: TOXENV=twine
