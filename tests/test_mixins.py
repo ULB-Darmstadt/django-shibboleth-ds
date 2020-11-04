@@ -29,4 +29,4 @@ class TestShibDSLoginMixin:
 
     def test_target(self, client):
         shib_ds = client.get(self.login_url + '?next=spam').context.get('shib_ds')
-        assert shib_ds.get('target') == 'https://testserver/spam'
+        assert shib_ds.get('next') == 'spam'

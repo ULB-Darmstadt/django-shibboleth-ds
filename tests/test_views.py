@@ -1,6 +1,9 @@
 import json
 import pytest
 
+from urllib.parse import parse_qs
+from urllib.parse import urlparse
+from urllib.parse import urlunparse
 from django.conf import settings
 from django.urls import reverse
 
@@ -109,4 +112,32 @@ class TestSetCookieView:
 
     def test_entity_not_found(self, client):
         r = client.post(reverse('shib_ds:remember-idp'), {'entity_id' : 'ham'}, 'application/json')
+        assert r.status_code == 400
+
+
+class TestRedirectView:
+    """
+    Groups tests about redirect
+    """
+
+    def test_redirect(self, client):
+        """
+        We pass a valid entityID, so that there should be a redirect and a cookie
+        """
+        idp_da = 'https://idp.hrz.tu-darmstadt.de/idp/shibboleth'
+        r = client.get(reverse('shib_ds:redirect'), {'entityID' : idp_da, 'next' : 'spam'})
+        assert r.status_code == 302
+        parts = urlparse(r.url)
+        params = parse_qs(parts.query)
+        assert settings.SHIB_DS_SP_URL == urlunparse([parts.scheme, parts.netloc, parts.path, '','',''])
+        assert params.get('entityID')[0] == idp_da
+        assert params.get('target')[0] == 'https://testserver/spam'
+        assert client.cookies.get(settings.SHIB_DS_COOKIE_NAME).value == b64encode_idp(idp_da)
+
+    def test_entity_id_missing(self, client):
+        r = client.get(reverse('shib_ds:redirect'))
+        assert r.status_code == 400
+
+    def test_entity_id_unknown(self, client):
+        r = client.get(reverse('shib_ds:redirect'), {'entityID' : 'spam'})
         assert r.status_code == 400

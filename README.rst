@@ -77,6 +77,20 @@ You get the following back:
 
 Note ``name`` and ``description`` will be localized according to how Django determines the users language. If the DiscoFeed does not provide localized ``name`` or ``description``, Django Shibboleth Discovery defaults to English.
 
+Redirect to the IdP
+```````````````````
+
+The Shibboleth SP Deamon is capable of redirecting to the choosen IdP.
+You need to hit its login page with GET parameters ``entityID`` and ``target``, where ``entityID`` is the choosen IdP and ``target`` is URL to redirect the user after successful authentication.
+
+You can initiate the redirect via ``reverse(shib_ds:redirect)`` and pass ``entityID`` and ``next`` as parameters.
+The view will check if the entityID is known and cnstruct a full ``target`` URL with ``django.contrib.sites.shortcuts.get_current_site`` and the value of ``next``.
+The protocol is always `https`.
+
+The view will also set a cookie, see below.
+
+If no ``entityID`` is given or is unknown, the view returns a 400, *Bad Request*.
+
 Remember Choosen IdP
 ````````````````````
 
@@ -91,7 +105,7 @@ Either set it directly with your JS or make a AJAX call to ``reverse('shib_ds:re
        "entity_id" : "https://idp.hrz.uni-kassel.de/idp/shibboleth-idp"
    }
 
-You can access the saved IdPs via ``ShibDSLoginMixin``.
+You can access the saved IdPs via ``ShibDSLoginMixin`` or the templatetag.
 
 Options
 ~~~~~~~
@@ -175,9 +189,8 @@ recent_idps
 return_id_param
     Paramter with which you pass the choosen IdP to the SP.
 
-target
-    Return URL to pass to the Shibboleth Service Provider Deamon.
-    This value is your domain together with the value of ``?next=`` and always uses https.
+next
+    This is simply ``request.GET.get('next', '')`` and should be passed to the redirect view.
 
 sp_url
     URL to the Shibboleth SP Deamon.

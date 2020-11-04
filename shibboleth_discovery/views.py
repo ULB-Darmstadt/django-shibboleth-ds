@@ -1,18 +1,20 @@
 import json
 
-from datetime import datetime
-from datetime import timedelta
+from urllib.parse import urlencode
+from urllib.parse import urljoin
 
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
+from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.views.generic.base import View
 
-from .utils import b64decode_idp, b64encode_idp
 from .utils import prepare_data
 from .utils import search
+from shibboleth_discovery.utils import set_cookie
 
 
 class SearchView(View):
@@ -70,23 +72,49 @@ class SetCookieView(View):
         )
         # We allow only known entityIDs to be saved
         if entity_id in [idp.get('entity_id') for idp in idps]:
-            idps = [b64decode_idp(idp) for idp in request.COOKIES.get(settings.SHIB_DS_COOKIE_NAME, '').split(' ') if idp]
-            # We delete the entity_id / IdP from the list and then append the list to our new entity id.
-            # This way, the new entity id is the first
-            try:
-                idps.remove(entity_id)
-            except ValueError:
-                pass
-
-            idps = [b64encode_idp(idp) for idp in [entity_id] + idps]
-            # We set the cookie, then return the HttpResponse
             response = HttpResponse()
+            set_cookie(response, self.request, entity_id)
+            return response
+        else:
+            return HttpResponseBadRequest("EntityID does not exist.")
 
-            response.set_cookie(
-                settings.SHIB_DS_COOKIE_NAME,
-                value=' '.join(idps[:settings.SHIB_DS_MAX_IDP]),
-                expires=datetime.now() + timedelta(days=365),
+
+class RedirectView(View):
+    """
+    This view does a redirect to the choosen IdP via the Shibboleth SP Deamon and checks in advance, if the choosen IdP is in the cache. If so, the view sets a cookie and redirects. Otherwise raises a HttpResponseBadRequest
+    """
+
+    def get(self, request, *args, **kwargs):
+        """
+        Does a simple check, sets a cookie and redirects
+        """
+        entity_id = request.GET.get('entityID')
+
+        if not entity_id:
+            return HttpResponseBadRequest("EntityID must not be empty.")
+
+        idps, index = cache.get_or_set(
+            'shib_ds',
+            prepare_data(),
+            timeout=settings.SHIB_DS_CACHE_DURATION
+        )
+        # We allow only known entityIDs to be saved
+        if any(entity_id==idp.get('entity_id') for idp in idps):
+            # We construct some more parameters for the Redirect
+            target = urljoin('https://{}'.format(get_current_site(request)), request.GET.get('next', ''))
+            params = {
+                'target' : target,
+                settings.SHIB_DS_RETURN_ID_PARAM : entity_id,
+            }
+            url = '{}?{}'.format(
+                settings.SHIB_DS_SP_URL,
+                urlencode(params)
             )
+
+            response = HttpResponseRedirect(url)
+
+            set_cookie(response, self.request, entity_id)
+
             return response
         else:
             return HttpResponseBadRequest("EntityID does not exist.")

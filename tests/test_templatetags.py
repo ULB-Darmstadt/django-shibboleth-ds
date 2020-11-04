@@ -46,4 +46,4 @@ class TestShibDS:
 
     def test_target(self, client):
         shib_ds = self.get_shib_ds('?next=spam')
-        assert shib_ds.get('target') == 'https://testserver/spam'
+        assert shib_ds.get('next') == 'spam'

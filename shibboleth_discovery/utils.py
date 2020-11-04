@@ -2,10 +2,10 @@ import json
 import requests
 
 from base64 import b64decode, b64encode
-from urllib.parse import urljoin
+from datetime import datetime
+from datetime import timedelta
 
 from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import cache
 from django.utils import translation
 
@@ -161,6 +161,7 @@ def get_recent_idps(request):
     )
     return recent_idps
 
+
 def get_context(request):
     """
     Takes a request and returns a dictionary containing some information for context
@@ -169,6 +170,27 @@ def get_context(request):
         'recent_idps' : get_recent_idps(request),
         'return_id_param' : settings.SHIB_DS_RETURN_ID_PARAM,
         'sp_url' : settings.SHIB_DS_SP_URL,
-        'target' : urljoin('https://{}'.format(get_current_site(request)), request.GET.get('next', '')),
+        'next' : request.GET.get('next', ''),
     }
     return shib_ds
+
+
+def set_cookie(response, request, entity_id):
+    """
+    Adds a cookie to the given response
+    """
+    idps = [b64decode_idp(idp) for idp in request.COOKIES.get(settings.SHIB_DS_COOKIE_NAME, '').split(' ') if idp]
+    # We delete the entity_id / IdP from the list and then append the list to our new entity id.
+    # This way, the new entity id is the first
+    try:
+        idps.remove(entity_id)
+    except ValueError:
+        pass
+
+    idps = [b64encode_idp(idp) for idp in [entity_id] + idps]
+
+    response.set_cookie(
+        settings.SHIB_DS_COOKIE_NAME,
+        value=' '.join(idps[:settings.SHIB_DS_MAX_IDP]),
+        expires=datetime.now() + timedelta(days=365),
+    )
