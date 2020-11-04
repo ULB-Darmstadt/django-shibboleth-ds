@@ -213,3 +213,11 @@ In case you do not want to use a mixin, e.g. if shibboleth authentication is opt
    {% shib_ds_context as shib_ds %}
 
 Then you have a dict as provided by the mixin.
+
+
+Forms
+~~~~~
+
+This app does not provide a form as part of the philosophy.
+Since chosing an IdP requires only a simple form, there is not much effort in it.
+Self-defining a form is probably easier than to struggle with a pre-existing form.
