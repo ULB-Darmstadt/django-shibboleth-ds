@@ -131,7 +131,7 @@ SHIB_DS_DISCOFEED_PATH
 SHIB_DS_DISCOFEED_URL
     Usually the DiscoFeed is served as URL.
 
-SHIB_DS_MAX_RESULTS (Deftault: 10)
+SHIB_DS_MAX_RESULTS (Default: 10)
     The number of results when querying the API.
 
 SHIB_DS_MAX_IDP (Default: 3)
