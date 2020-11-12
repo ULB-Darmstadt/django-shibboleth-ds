@@ -22,7 +22,7 @@ But there are of course a mixin and a templatetag to support you!
 Django Shibboleth Discovery uses simple AJAX requests for the search.
 Under the hood, the DiscoFeed, that can be quite big, is cached using Djangos caching framework.
 
-Django Shibboleth Discovery has little dependencies and works with Django 2.2 and 3.0.
+Django Shibboleth Discovery has little dependencies and works with Django 2.2, 3.0 and 3.1.
 
 Note that it does not comply with `Identity Provider Discovery Service Protocol and Profile <http://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-idp-discovery.pdf>`_, because it is meant for single Service Providers.
 
