@@ -12,22 +12,13 @@ jobs:
 
     - stage: tests
       python: 3.8
-      env: TOXENV=py38-dj30
-
-    - python: 3.8
-      env: TOXENV=py38-dj22
+      env: TOXENV="py38-dj{22,30}"
 
     - python: 3.7
-      env: TOXENV=py37-dj30
-
-    - python: 3.7
-      env: TOXENV=py37-dj22
+      env: TOXENV="py37-dj{22,30}"
 
     - python: 3.6
-      env: TOXENV=py36-dj30
-
-    - python: 3.6
-      env: TOXENV=py36-dj22
+      env: TOXENV="py36-dj{22,30}"
 
     - stage: packaging
       python: 3.8
