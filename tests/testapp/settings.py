@@ -68,6 +68,13 @@ TEMPLATES = [
 ]
 
 
+# Caches
+# We use the standard cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+    }
+}
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 

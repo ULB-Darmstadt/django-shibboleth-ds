@@ -5,15 +5,14 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.cache import cache
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect
 from django.http import JsonResponse
 from django.views.generic.base import View
 
-from .utils import prepare_data
-from .utils import search
+from shibboleth_discovery.utils import get_or_set_cache
+from shibboleth_discovery.utils import search
 from shibboleth_discovery.utils import set_cookie
 
 
@@ -65,11 +64,7 @@ class SetCookieView(View):
         if not entity_id:
             return HttpResponseBadRequest("EntityID must not be empty.")
 
-        idps, index = cache.get_or_set(
-            'shib_ds',
-            prepare_data(),
-            timeout=settings.SHIB_DS_CACHE_DURATION
-        )
+        idps, index = get_or_set_cache()
         # We allow only known entityIDs to be saved
         if entity_id in [idp.get('entity_id') for idp in idps]:
             response = HttpResponse()
@@ -93,11 +88,7 @@ class RedirectView(View):
         if not entity_id:
             return HttpResponseBadRequest("EntityID must not be empty.")
 
-        idps, index = cache.get_or_set(
-            'shib_ds',
-            prepare_data(),
-            timeout=settings.SHIB_DS_CACHE_DURATION
-        )
+        idps, index = get_or_set_cache()
         # We allow only known entityIDs to be saved
         if any(entity_id==idp.get('entity_id') for idp in idps):
             # We construct some more parameters for the Redirect

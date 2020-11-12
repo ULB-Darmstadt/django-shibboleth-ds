@@ -132,11 +132,7 @@ def search(tokens):
 
     tokens = [token.lower().strip() for token in tokens]
 
-    idps, index = cache.get_or_set(
-        'shib_ds',
-        prepare_data(),
-        timeout=settings.SHIB_DS_CACHE_DURATION
-    )
+    idps, index = get_or_set_cache()
 
     result = [localize_idp(idp) for idp, idx in zip(idps, index) if all(token in idx for token in tokens)]
 
@@ -148,11 +144,9 @@ def get_recent_idps(request):
     Returns a list of recent IdPs formatted by SHIB_DS_POST_PROCESSOR
     """
     saved_idps = [b64decode_idp(idp) for idp in request.COOKIES.get(settings.SHIB_DS_COOKIE_NAME, '').split(' ') if idp]
-    idps, index = cache.get_or_set(
-        'shib_ds',
-        prepare_data(),
-        timeout=settings.SHIB_DS_CACHE_DURATION
-    )
+
+    idps, index = get_or_set_cache()
+
     recent_idps = settings.SHIB_DS_POST_PROCESSOR(
         [
             localize_idp(idp) for idp in idps
@@ -194,3 +188,26 @@ def set_cookie(response, request, entity_id):
         value=' '.join(idps[:settings.SHIB_DS_MAX_IDP]),
         expires=datetime.now() + timedelta(days=365),
     )
+
+def set_cache():
+    """
+    This is a shortcut that includes shibboleth discovery specific parameters
+    """
+    cache.set(
+        'shib_ds',
+        prepare_data(),
+        timeout=settings.SHIB_DS_CACHE_DURATION
+    )
+
+def get_or_set_cache():
+    """
+    This is a shortcut that includes shibboleth discovery specific parameters
+    It returns the idps and the index
+    """
+    idps, index = cache.get_or_set(
+        'shib_ds',
+        prepare_data,
+        timeout=settings.SHIB_DS_CACHE_DURATION
+    )
+
+    return idps, index
