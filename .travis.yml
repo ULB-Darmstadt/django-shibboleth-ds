@@ -11,6 +11,10 @@ jobs:
       env: TOXENV=flakes
 
     - stage: tests
+      python: 3.9
+      env: TOXENV="py39-dj{22,30,31}"
+
+    - stage: tests
       python: 3.8
       env: TOXENV="py38-dj{22,30,31}"
 
